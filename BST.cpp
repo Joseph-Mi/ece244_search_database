@@ -12,91 +12,118 @@ BST::BST(string order_) {
   order = order_;
 }
 
+//for deleting a tree, delete up to its last elements, then recursively traverse back up
+void deleteTree(Employee *employee) {
+  if (!employee) return;
+
+  deleteTree(employee->getLeft());
+  deleteTree(employee->getRight());
+
+  delete employee;
+  }
+
 BST::~BST() {
-  delete root;
+  deleteTree(root);
 }
 
+
+////////// insert //////////
+////////////////////////////
 // newEmployee is a pointer to a dynamically allocated Employee. Insert it
 // according to the value of "order" of the binary search tree.
 void BST::insert(Employee* newEmployee) {
-  if (!root) {
-    root = newEmployee;
-    return;
+    if (!root) {
+        root = newEmployee;
+        return;
+    }
+
+    Employee* current = root;
+    Employee* parent = nullptr;
+
+    while (current) {
+        parent = current;
+
+        if (order == "name" || order == "Name") {
+            if (newEmployee->getName() < current->getName()) {
+                current = current->getLeft();
+            } else {
+                current = current->getRight();
+            }
+        } else if (order == "id" || order == "ID") {
+            if (newEmployee->getID() < current->getID()) {
+                current = current->getLeft();
+            } else {
+                current = current->getRight();
+            }
+        } else if (order == "age" || order == "Age") {
+            if (newEmployee->getAge() < current->getAge()) {
+                current = current->getLeft();
+            } else {
+                current = current->getRight();
+            }
+        }
+    }
+
+  // onto setting
+    if (order == "name" || order == "Name") {
+        if (newEmployee->getName() < parent->getName()) {
+            parent->setLeft(newEmployee);
+        } else {
+            parent->setRight(newEmployee);
+        }
+    } else if (order == "id" || order == "ID") {
+        if (newEmployee->getID() < parent->getID()) {
+            parent->setLeft(newEmployee);
+        } else {
+            parent->setRight(newEmployee);
+        }
+    } else if (order == "age" || order == "Age") {
+        if (newEmployee->getAge() < parent->getAge()) {
+            parent->setLeft(newEmployee);
+        } else {
+            parent->setRight(newEmployee);
+        }
+    }
+}
+
+
+////////// print Order //////////
+/////////////////////////////////
+void printInOrderHelper(Employee *current, string order) {
+  if (!current) return;
+
+  printInOrderHelper(current->getLeft(), order);
+
+  //not sure if I should print employee name, ID, or what
+  if (order == "name" || order == "Name") {
+      cout << current->getName() << endl;
+  } else if (order == "id" || order == "ID") {
+      cout << current->getID() << endl;
+  } else if (order == "age" || order == "Age") {
+      cout << current->getAge() << endl;
   }
 
-  Employee *current = root;
-  Employee *parent = nullptr;
-
-  while (current) {
-    parent = current;
-
-    if (order == "name" || order == "Name") {
-      if (newEmployee->getName() < current->getName()) {
-        current = current->getLeft();
-      } else {
-        current = current->getRight();
-      }
-    }
-
-    else if (order == "id"  || order == "ID") {
-      if (newEmployee->getID() < current->getID()) {
-        current = current->getLeft();
-      } else {
-        current = current->getRight();
-      }
-    }
-
-    else if (order == "age" || order == "Age") {
-      if (newEmployee->getAge() < current->getAge()) {
-        current = current->getLeft();
-      } else {
-        current = current->getRight();
-      }
-    }
-
-    // now onto setting
-    if (order == "name" || order == "Name") {
-      if (newEmployee->getName() < parent->getName()) {
-        parent->setLeft(newEmployee);
-      } else {
-        current->setRight(newEmployee);
-      }
-    }
-
-    else if (order == "id" || order == "ID") {
-      if (newEmployee->getID() < parent->getID()) {
-        parent->setLeft(newEmployee);
-      } else {
-        current->setRight(newEmployee);
-      }
-    }
-
-    if (order == "age" || order == "Age") {
-      if (newEmployee->getAge() < parent->getAge()) {
-        parent->setLeft(newEmployee);
-      } else {
-        current->setRight(newEmployee);
-      }
-    }
-  }
+  printInOrderHelper(current->getRight(), order);
 }
 
 // print the Employees in the tree according its order
 // Doesn't print anything if nothing is found
 void BST::printInOrder() {
   if (!root) return;
-  
 
   // now traverse all the way to last layer left and then right and then up
-
+  printInOrderHelper(root, order);
 }
+
+////////// searchID //////////
+//////////////////////////////////
 
 // search for an employee with a particular ID
 // return NULL
 Employee* BST::searchID(int ID) {
-  // if (root == nullptr) {
-  //   return nullptr;
-  // }
+  if (root == NULL) {
+    return NULL;
+  }
 
   Employee *current = root;
 
@@ -114,18 +141,51 @@ Employee* BST::searchID(int ID) {
   return NULL;
 }
 
+////////// search age range //////////
+//////////////////////////////////////
+// will only work on tree ordered by age
+void searchAgeRangeHelper(Employee *ATNode, int lowAge, int highAge) {
+  if (ATNode == nullptr) return;
+
+  if (ATNode->getAge() >= lowAge && ATNode->getAge() <= highAge) {
+    cout << ATNode->getAge() << endl;
+  } else if (ATNode->getAge() > lowAge) {
+    searchAgeRangeHelper(ATNode->getLeft(), lowAge, highAge);
+  } else if (ATNode->getAge() <= highAge) {
+    searchAgeRangeHelper(ATNode->getRight(), lowAge, highAge);
+  }
+}
+
 // search for employees within the age range
 // Doesn't print anything if nothing is found
 void BST::searchAgeRange(double lowAge, double highAge) {
   if (!root) return;
 
-
+  searchAgeRangeHelper(root, lowAge, highAge);
 }
 
+////////// autocomplete //////////
+//////////////////////////////////
+//will only work if tree ordered by name
+void automCompleteHelper(Employee *NTNode, string pre) {
+  if (NTNode == nullptr) return;
+
+  string name = NTNode->getName();
+  int len = pre.size();
+
+  if(name.substr(0,len) == pre) {
+    cout << name << endl;
+  }
+
+  automCompleteHelper(NTNode->getLeft(), pre);
+  automCompleteHelper(NTNode->getRight(), pre);
+}
 // Search for employees with names having the same prefix in the firstName +
 // secondName If available, it prints them in order of their names in
 // alphabetical order
 // Doesn't print anything if nothing is found
 void BST::autocomplete(string prefix) {
+  if (!root) return;
 
+  automCompleteHelper(root, prefix);
 }

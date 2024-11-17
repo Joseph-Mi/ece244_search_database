@@ -48,6 +48,7 @@ int main() {
   // You have to make sure all dynamically allocated memory is freed
   // before return 0
 
+
   return 0;
 }
 
@@ -69,6 +70,14 @@ void addEmployee(stringstream& lineStream) {
 
   // Add the employee to the available trees and print "Error: ID already
   // exists" if ID already exists
+  Employee newEmployee(firstName, lastName, ID, age, salary);
+
+  if (IDTree->searchID(ID) != NULL) {
+    cout << "Error: ID already exists" << endl;
+  } else {
+    IDTree->insert(&newEmployee);
+  }
+  // I think done
 }
 
 void searchAgeRangeEmployee(stringstream& lineStream) {
@@ -117,6 +126,7 @@ void autocompleteEmployee(stringstream& ss) {
   // read whatever is entered by the user
   // and print all employees that have names that start the same way
   // you should ignore spaces in names
+  nameTree->autocomplete(ss);
 }
 
 bool getString(stringstream& lineStream, string& s) {
