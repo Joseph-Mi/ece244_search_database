@@ -32,58 +32,54 @@ BST::~BST() {
 // newEmployee is a pointer to a dynamically allocated Employee. Insert it
 // according to the value of "order" of the binary search tree.
 void BST::insert(Employee* newEmployee) {
-    if (!root) {
-        root = newEmployee;
-        return;
-    }
+  if (!root) {
+    root = newEmployee;
+    return;
+  }
 
-    Employee* current = root;
-    Employee* parent = nullptr;
+  Employee* current = root;
+  Employee* parent = nullptr;
 
+  while (current) {
+    parent = current;
     while (current) {
-        parent = current;
-
-        if (order == "name" || order == "Name") {
-            if (newEmployee->getName() < current->getName()) {
-                current = current->getLeft();
-            } else {
-                current = current->getRight();
-            }
-        } else if (order == "id" || order == "ID") {
-            if (newEmployee->getID() < current->getID()) {
-                current = current->getLeft();
-            } else {
-                current = current->getRight();
-            }
-        } else if (order == "age" || order == "Age") {
-            if (newEmployee->getAge() < current->getAge()) {
-                current = current->getLeft();
-            } else {
-                current = current->getRight();
-            }
+      parent = current;
+      if (order == "name" || order == "Name") {
+        current = (newEmployee->getName() < current->getName()) ? current->getLeft() : current->getRight();
+      } else if (order == "id" || order == "ID") {
+        // cant have same id
+        if (newEmployee->getID() == current->getID()) {
+          cout << "Error: ID already exists" << endl;
+          return;
         }
+        current = (newEmployee->getID() < current->getID()) ? current->getLeft() : current->getRight();
+      } else if (order == "age" || order == "Age") {
+        // make sure if age is equal, new emp is still lower
+        current = (newEmployee->getAge() <= current->getAge()) ? current->getLeft() : current->getRight();
+      }
     }
+  }
 
   // onto setting
-    if (order == "name" || order == "Name") {
-        if (newEmployee->getName() < parent->getName()) {
-            parent->setLeft(newEmployee);
-        } else {
-            parent->setRight(newEmployee);
-        }
-    } else if (order == "id" || order == "ID") {
-        if (newEmployee->getID() < parent->getID()) {
-            parent->setLeft(newEmployee);
-        } else {
-            parent->setRight(newEmployee);
-        }
-    } else if (order == "age" || order == "Age") {
-        if (newEmployee->getAge() < parent->getAge()) {
-            parent->setLeft(newEmployee);
-        } else {
-            parent->setRight(newEmployee);
-        }
+  if (order == "name" || order == "Name") {
+    if (newEmployee->getName() < parent->getName()) {
+      parent->setLeft(newEmployee);
+    } else {
+      parent->setRight(newEmployee);
     }
+  } else if (order == "id" || order == "ID") {
+    if (newEmployee->getID() < parent->getID()) {
+      parent->setLeft(newEmployee);
+    } else {
+      parent->setRight(newEmployee);
+    }
+  } else if (order == "age" || order == "Age") {
+    if (newEmployee->getAge() <= parent->getAge()) {
+      parent->setLeft(newEmployee);
+    } else {
+      parent->setRight(newEmployee);
+    }
+  }
 }
 
 
@@ -117,7 +113,6 @@ void BST::printInOrder() {
 
 ////////// searchID //////////
 //////////////////////////////////
-
 // search for an employee with a particular ID
 // return NULL
 Employee* BST::searchID(int ID) {
@@ -138,7 +133,7 @@ Employee* BST::searchID(int ID) {
     }
   }
 
-  return NULL;
+  return NULL; //employee not found
 }
 
 ////////// search age range //////////
@@ -147,11 +142,19 @@ Employee* BST::searchID(int ID) {
 void searchAgeRangeHelper(Employee *ATNode, int lowAge, int highAge) {
   if (ATNode == nullptr) return;
 
-  if (ATNode->getAge() >= lowAge && ATNode->getAge() <= highAge) {
-    cout << ATNode->getAge() << endl;
-  } else if (ATNode->getAge() > lowAge) {
+  // still need to check
+  if (ATNode->getAge() >= lowAge) {
     searchAgeRangeHelper(ATNode->getLeft(), lowAge, highAge);
-  } else if (ATNode->getAge() <= highAge) {
+  }
+  // if within
+  if (ATNode->getAge() >= lowAge && ATNode->getAge() <= highAge) {
+    cout << "Name: " << ATNode->getName() << endl
+        << "ID: " << ATNode->getID() << endl
+        << "Age: " << ATNode->getAge() << endl
+        << "Salary: " << ATNode->getSalary() << endl; 
+  }
+  // still need to check even if we have found one
+  if (ATNode->getAge() <= highAge) {
     searchAgeRangeHelper(ATNode->getRight(), lowAge, highAge);
   }
 }
