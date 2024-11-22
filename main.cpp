@@ -47,11 +47,14 @@ int main() {
 
   // You have to make sure all dynamically allocated memory is freed
   // before return 0
-
+  delete nameTree;
+  delete IDTree;
+  delete ageTree;
 
   return 0;
 }
 
+//////////// add an employee
 void addEmployee(stringstream& lineStream) {
   // employee <ID> <firstName> <lastName> <age> <salary>
   string firstName, lastName;
@@ -72,14 +75,19 @@ void addEmployee(stringstream& lineStream) {
   // exists" if ID already exists
   Employee newEmployee(firstName, lastName, ID, age, salary);
 
-  if (IDTree->searchID(ID) != NULL) {
+  if (IDTree->searchID(ID) != NULL || ageTree->searchID(ID) != NULL || nameTree->searchID(ID) != NULL) {
     cout << "Error: ID already exists" << endl;
   } else {
     IDTree->insert(&newEmployee);
+    ageTree->insert(&newEmployee);
+    nameTree->insert(&newEmployee);
   }
-  // I think done
+
+  return;
+  // need to do for all trees
 }
 
+// search functions 
 void searchAgeRangeEmployee(stringstream& lineStream) {
   // search age <lowAge> <highAge>
   // can assume lowAge is always less than or equal highAge
@@ -93,6 +101,7 @@ void searchAgeRangeEmployee(stringstream& lineStream) {
     return;
   }
   // Search for employees with age between lowAge and highAge inclusive
+  ageTree->searchAgeRange(lowAge, highAge);
 }
 
 void searchIDEmployee(stringstream& lineStream) {
@@ -107,17 +116,31 @@ void searchIDEmployee(stringstream& lineStream) {
     return;
   }
   // Search for employee with ID and print their info.
+  Employee* employee = IDTree->searchID(ID);
+  if (employee) {
+    employee->print();
+  } else {
+    cout << "Error: ID does not exist";
+  }
 }
+
 void searchEmployee(stringstream& lineStream) {
   string mode;
   if (!getString(lineStream, mode)) {
     cout << "Error: too few arguments." << endl;
     return;
   }
+  if (foundMoreArgs(lineStream)) {
+    cout << "Error: too many arguments" << endl;
+    return;
+  }
+
   if (mode == "ID") {
     searchIDEmployee(lineStream);
   } else if (mode == "age") {
     searchAgeRangeEmployee(lineStream);
+  } else {
+    cout << "invalid" << endl;
   }
 }
 
@@ -126,7 +149,22 @@ void autocompleteEmployee(stringstream& ss) {
   // read whatever is entered by the user
   // and print all employees that have names that start the same way
   // you should ignore spaces in names
-  nameTree->autocomplete(ss);
+  string prefix;
+
+  if (!getString(ss, prefix)) {
+    cout << "Error: too few arguments." << endl;
+    return;
+  }
+  if (foundMoreArgs(ss)) {
+    cout << "Error: too many arguments" << endl;
+    return;
+  }
+  if (prefix.empty() || prefix.find_first_not_of(' ') == string::npos) {
+    cout << "Error: prefix cannot be empty or only spaces." << endl;
+    return;
+  }
+
+  nameTree->autocomplete(prefix);
 }
 
 bool getString(stringstream& lineStream, string& s) {

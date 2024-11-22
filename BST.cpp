@@ -143,18 +143,15 @@ void searchAgeRangeHelper(Employee *ATNode, int lowAge, int highAge) {
   if (ATNode == nullptr) return;
 
   // still need to check
-  if (ATNode->getAge() >= lowAge) {
+  if (ATNode->getAge() > lowAge) {
     searchAgeRangeHelper(ATNode->getLeft(), lowAge, highAge);
   }
   // if within
   if (ATNode->getAge() >= lowAge && ATNode->getAge() <= highAge) {
-    cout << "Name: " << ATNode->getName() << endl
-        << "ID: " << ATNode->getID() << endl
-        << "Age: " << ATNode->getAge() << endl
-        << "Salary: " << ATNode->getSalary() << endl; 
+    ATNode->print();
   }
   // still need to check even if we have found one
-  if (ATNode->getAge() <= highAge) {
+  if (ATNode->getAge() < highAge) {
     searchAgeRangeHelper(ATNode->getRight(), lowAge, highAge);
   }
 }
@@ -176,8 +173,15 @@ void automCompleteHelper(Employee *NTNode, string pre) {
   string name = NTNode->getName();
   int len = pre.size();
 
-  if(name.substr(0,len) == pre) {
-    cout << name << endl;
+  string nameWithoutSpaces = "";
+  for (char c : name) {
+    if (c != ' ') {
+      nameWithoutSpaces += c;  // Add non-space characters to the new string
+    }
+  }
+
+  if(nameWithoutSpaces.substr(0,len) == pre) {
+    NTNode->print();
   }
 
   automCompleteHelper(NTNode->getLeft(), pre);
